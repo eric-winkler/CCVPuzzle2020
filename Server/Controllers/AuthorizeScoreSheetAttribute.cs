@@ -15,8 +15,15 @@ namespace PuzzlePortal.Server.Controllers
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var quizMaster = context.HttpContext.RequestServices.GetService<IQuizMaster>();
-            if (!(context.ActionArguments["scoreSheet"] is ScoreSheetModel scoreSheet) ||
-                (scoreSheet.CompletedPuzzles?.Any() == true && !quizMaster.IsAuthentic(new ScoreSheet(scoreSheet))))
+
+            var scoreSheet = context.ActionArguments["scoreSheet"] as ScoreSheetModel;
+            var isVirginScoreSheet = scoreSheet != null
+                && string.IsNullOrEmpty(scoreSheet.Signature)
+                && scoreSheet.CompletedPuzzles?.Any() != true
+                && scoreSheet.CurrentPuzzle == default
+                && scoreSheet.StartingTimestamp == default;
+
+            if (!isVirginScoreSheet && !quizMaster.IsAuthentic(new ScoreSheet(scoreSheet)))
             {
                 context.Result = new UnauthorizedResult();
                 return;

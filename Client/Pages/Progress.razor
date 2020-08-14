@@ -5,14 +5,22 @@
 @inject NavigationManager NavigationManager
 <h1>Progress Check</h1>
 
+<p>
+    It looks like you haven't even started yet! Are you ready? [let's go link]
+</p>
 
 
-It looks like you haven't even started yet! Are you ready? [let's go link]
 
-
-Team name
-Completed Puzzle list
-Current puzzle [with link]
+<h3>Welcome [teamname]!</h3>
+<p>
+    Here's what you've accomplished so far:
+</p>
+<p>
+    Completed Puzzle list
+</p>
+<p>
+    Current puzzle [with link]
+</p>
 
 
 @*<p>Current count: @currentCount</p>
@@ -25,14 +33,18 @@ Current puzzle [with link]
 
     protected override async Task OnInitializedAsync()
     {
-        var value = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
-        if (value == null)
+        var scoreSheet = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (scoreSheet == null)
         {
             Console.WriteLine("No active scoresheet!");
         }
         else
         {
-            Console.WriteLine($"Loaded scoresheet for {value.Name}");
+            Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
+            var response = await Http.PostAsync("api/ScoreSheet", content);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         }
     }
 }
