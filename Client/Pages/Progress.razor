@@ -1,0 +1,38 @@
+﻿@page "/progress"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@inject HttpClient Http
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
+<h1>Progress Check</h1>
+
+
+
+It looks like you haven't even started yet! Are you ready? [let's go link]
+
+
+Team name
+Completed Puzzle list
+Current puzzle [with link]
+
+
+@*<p>Current count: @currentCount</p>
+
+    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+*@
+
+@code {
+    private PuzzlePortal.Shared.ScoreSheetModel scoreSheetModel = new PuzzlePortal.Shared.ScoreSheetModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var value = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (value == null)
+        {
+            Console.WriteLine("No active scoresheet!");
+        }
+        else
+        {
+            Console.WriteLine($"Loaded scoresheet for {value.Name}");
+        }
+    }
+}

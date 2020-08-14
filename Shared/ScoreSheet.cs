@@ -16,56 +16,12 @@ namespace PuzzlePortal.Shared
 
 	}
 
-    public class ScoreSheet
+	public class ScoreSheetModel
     {
-		public string Name { get; private set; }
-		public DateTimeOffset StartingTimestamp { get; private set; }
+		public string Name { get; set; }
+		public DateTimeOffset StartingTimestamp { get; set; }
 		public Guid[] CompletedPuzzles { get; set; }
 		public Guid CurrentPuzzle { get; set; }
-		public string Signature { get; private set; }
-		public ScoreSheet SigningTarget => new ScoreSheet(this);
-
-		public ScoreSheet(string name, Guid firstPuzzle)
-		{
-			Name = name;
-			StartingTimestamp = DateTimeOffset.Now;
-			CurrentPuzzle = firstPuzzle;
-			CompletedPuzzles = new Guid[0];
-		}
-
-		private ScoreSheet(ScoreSheet otherScoreSheet)
-		{
-			Name = otherScoreSheet.Name;
-			StartingTimestamp = otherScoreSheet.StartingTimestamp;
-			CompletedPuzzles = otherScoreSheet.CompletedPuzzles;
-			CurrentPuzzle = otherScoreSheet.CurrentPuzzle;
-		}
-
-		public ScoreSheet Complete(Guid puzzleId)
-		{
-			if (CurrentPuzzle != puzzleId)
-				throw new InvalidOperationException("Can only complete the current puzzle");
-
-			var newScoreSheet = new ScoreSheet(this);
-			newScoreSheet.CompletedPuzzles = newScoreSheet.CompletedPuzzles.Concat(new[] { puzzleId }).ToArray();
-			return newScoreSheet;
-		}
-
-		public ScoreSheet ChangeToPuzzle(Guid puzzleId)
-		{
-			if (CompletedPuzzles.Contains(puzzleId))
-				throw new InvalidOperationException("Can't change to an already completed puzzle");
-
-			var newScoreSheet = new ScoreSheet(this);
-			newScoreSheet.CurrentPuzzle = puzzleId;
-			return newScoreSheet;
-		}
-
-		public ScoreSheet Sign(string signature)
-        {
-			var newScoreSheet = new ScoreSheet(this);
-			newScoreSheet.Signature = signature;
-			return newScoreSheet;
-		}
+		public string Signature { get; set; }
 	}
 }

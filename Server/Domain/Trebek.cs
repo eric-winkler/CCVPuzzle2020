@@ -4,7 +4,15 @@ using System.Linq;
 
 namespace PuzzlePortal.Server.Domain
 {
-    internal class Trebek
+    public interface IQuizMaster
+    {
+        ScoreSheet RegisterNewContestant(string name);
+        ScoreSheet CompletePuzzle(ScoreSheet scoreSheet, Guid puzzleId);
+        bool IsAuthentic(ScoreSheet scoreSheet);
+
+    }
+
+    public class Trebek : IQuizMaster
     {
         public string SigningKey = "todo";
         private static readonly Random Random = new Random(); // can be predicted
@@ -32,7 +40,7 @@ namespace PuzzlePortal.Server.Domain
             return Sign(scoreSheet);
         }
 
-        private bool IsAuthentic(ScoreSheet scoreSheet)
+        public bool IsAuthentic(ScoreSheet scoreSheet)
         {
             var expectedSignature = scoreSheet.ComputeSignature(SigningKey);
             return scoreSheet.Signature == expectedSignature;

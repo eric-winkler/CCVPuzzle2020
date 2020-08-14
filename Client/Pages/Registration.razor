@@ -1,0 +1,55 @@
+﻿@page "/registration"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@inject HttpClient Http
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
+<h1>Get Started</h1>
+
+<p>
+    Let us know who you are and we'll take you to the challenges.
+</p>
+
+<EditForm Model="@registrationModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <p>
+        <label>
+            Team name:
+            <InputText @bind-Value="registrationModel.TeamName" />
+        </label>
+    </p>
+
+    <button type="submit">Let's Go!</button>
+</EditForm>
+
+
+@code {
+    private PuzzlePortal.Shared.RegistrationModel registrationModel = new PuzzlePortal.Shared.RegistrationModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var value = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (value != null)
+        {
+            NavigationManager.NavigateTo("progress");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var scoreSheet = new PuzzlePortal.Shared.ScoreSheetModel() { Name = registrationModel.TeamName };
+        var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
+        var response = await Http.PostAsync("api/ScoreSheet", content);
+        var responseContent = await response.Content.ReadAsStringAsync();
+        Console.WriteLine("RECV:" + responseContent);
+        scoreSheet = System.Text.Json.JsonSerializer.Deserialize<PuzzlePortal.Shared.ScoreSheetModel>(responseContent, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Console.WriteLine("scoreSheet.Name: " + scoreSheet.Name);
+        Console.WriteLine("scoreSheet.Signature: " + scoreSheet.Signature);
+        Console.WriteLine("scoreSheet.StartingTimestamp: " + scoreSheet.StartingTimestamp);
+        Console.WriteLine("scoreSheet.CurrentPuzzle: " + scoreSheet.CurrentPuzzle);
+
+        Storage.SetItem("scoreSheet", scoreSheet);
+        NavigationManager.NavigateTo("progress");
+    }
+}
