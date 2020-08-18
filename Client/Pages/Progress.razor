@@ -5,23 +5,24 @@
 @inject NavigationManager NavigationManager
 <h1>Progress Check</h1>
 
-<p>
-    It looks like you haven't even started yet! Are you ready? [let's go link]
-</p>
+<div id="unregistered" style="@(string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
+    <p>
+        It looks like you haven't even started yet! Are you ready? [let's go link]
+    </p>
+</div>
 
-
-
-<h3>Welcome [teamname]!</h3>
-<p>
-    Here's what you've accomplished so far:
-</p>
-<p>
-    Completed Puzzle list
-</p>
-<p>
-    Current puzzle [with link]
-</p>
-
+<div id="registered" style="@(!string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
+    <h3>Welcome @TeamName</h3>
+    <p>
+        Here's what you've accomplished so far:
+    </p>
+    <p>
+        Completed Puzzle list
+    </p>
+    <p>
+        Current puzzle [with link]
+    </p>
+</div>
 
 @*<p>Current count: @currentCount</p>
 
@@ -29,6 +30,8 @@
 *@
 
 @code {
+    private string TeamName;
+
     private PuzzlePortal.Shared.ScoreSheetModel scoreSheetModel = new PuzzlePortal.Shared.ScoreSheetModel();
 
     protected override async Task OnInitializedAsync()
@@ -41,6 +44,7 @@
         else
         {
             Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
+            TeamName = scoreSheet.Name;
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync("api/ScoreSheet", content);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
