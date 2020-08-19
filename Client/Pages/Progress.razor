@@ -34,15 +34,23 @@
         }
     </p>
 
-    <p>
-        You should try to <a href="@CurrentPuzzle">solve a puzzle</a>.
-    </p>
+    <div id="finished" style="@(IsFinished ? "display:block" : "display:none")">
+        <p>
+            Congrats, you're done!
+        </p>
+    </div>
+    <div id="unfinished" style="@(!IsFinished ? "display:block" : "display:none")">
+        <p>
+            You should try to <a href="@CurrentPuzzle">solve a puzzle</a>.
+        </p>
+    </div>
 </div>
 
 @code {
     private string TeamName;
     private string CurrentPuzzle;
     private Guid[] CompletedPuzzles;
+    private bool IsFinished;
 
     private PuzzlePortal.Shared.ScoreSheetModel scoreSheetModel = new PuzzlePortal.Shared.ScoreSheetModel();
 
@@ -66,6 +74,7 @@
             TeamName = scoreSheet.Name;
             CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
             CompletedPuzzles = scoreSheet.CompletedPuzzles;
+            IsFinished = !PuzzlePortal.Shared.Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).Any();
         }
     }
 }
