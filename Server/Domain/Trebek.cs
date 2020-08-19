@@ -19,8 +19,9 @@ namespace PuzzlePortal.Server.Domain
 
         public ScoreSheet RegisterNewContestant(string name)
         {
-            var firstQuestion = PickOneAtRandom(PuzzleList.PuzzleIds);
+            var firstQuestion = PickOneAtRandom(Puzzle.Ids);
             var scoreSheet = new ScoreSheet(name, firstQuestion);
+            scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle); // TODO: remove
             return Sign(scoreSheet);
         }
 
@@ -33,7 +34,7 @@ namespace PuzzlePortal.Server.Domain
                 throw new InvalidOperationException("Can only complete the current puzzle");
 
             scoreSheet = scoreSheet.Complete(puzzleId);
-            var remainingPuzzles = PuzzleList.PuzzleIds.Except(scoreSheet.CompletedPuzzles).ToArray();
+            var remainingPuzzles = Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).ToArray();
             if (remainingPuzzles.Any())
                 scoreSheet = scoreSheet.ChangeToPuzzle(PickOneAtRandom(remainingPuzzles));
 

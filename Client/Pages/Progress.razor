@@ -3,34 +3,47 @@
 @inject HttpClient Http
 @inject LocalStorage Storage
 @inject NavigationManager NavigationManager
-<h1>Progress Check</h1>
 
 <div id="unregistered" style="@(string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
+    <h1>Progress Check</h1>
     <p>
-        It looks like you haven't even started yet! Are you ready? [let's go link]
+        It looks like you haven't even started yet! Are you ready? <a href="registration">let's go!</a>
     </p>
 </div>
 
 <div id="registered" style="@(!string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
-    <h3>Welcome @TeamName</h3>
+    <h1>Welcome @TeamName</h1>
     <p>
         Here's what you've accomplished so far:
     </p>
     <p>
-        Completed Puzzle list
+        @{
+            if (CompletedPuzzles?.Any() == true)
+            {
+                <ul>
+                    @foreach (var p in CompletedPuzzles)
+                    {
+                    <li>@PuzzlePortal.Shared.Puzzle.ById[p].Name</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div>Zip, nada, nothing.</div>
+            }
+        }
+
     </p>
+
     <p>
-        Current puzzle [with link]
+        <a href="@CurrentPuzzle">Current puzzle</a>
     </p>
 </div>
 
-@*<p>Current count: @currentCount</p>
-
-    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-*@
-
 @code {
     private string TeamName;
+    private string CurrentPuzzle;
+    private Guid[] CompletedPuzzles;
 
     private PuzzlePortal.Shared.ScoreSheetModel scoreSheetModel = new PuzzlePortal.Shared.ScoreSheetModel();
 
@@ -44,11 +57,16 @@
         else
         {
             Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
-            TeamName = scoreSheet.Name;
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync("api/ScoreSheet", content);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+
+            Console.WriteLine("Completed: " + scoreSheet.CompletedPuzzles);
+
+            TeamName = scoreSheet.Name;
+            CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
+            CompletedPuzzles = scoreSheet.CompletedPuzzles;
         }
     }
 }
