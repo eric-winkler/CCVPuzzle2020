@@ -21,7 +21,6 @@ namespace PuzzlePortal.Server.Domain
         {
             var firstQuestion = PickOneAtRandom(Puzzle.Ids);
             var scoreSheet = new ScoreSheet(name, firstQuestion);
-            scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle); // TODO: remove
             return Sign(scoreSheet);
         }
 
