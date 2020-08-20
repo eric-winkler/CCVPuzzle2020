@@ -1,0 +1,48 @@
+﻿@page "/validation"
+@using Microsoft.AspNetCore.WebUtilities
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h1>Completion Validation</h1>
+
+<EditForm Model="@validationModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <p>
+        <label>ValidationCode</label>
+        <InputTextArea @bind-Value="validationModel.Code" />
+    </p>
+    <button class="btn-primary" type="submit">Check Result</button>
+</EditForm>
+
+
+<div id="valid" class="alert-success" style="@(IsValid ? "display:block" : "display:none")">
+    <h2>VALID</h2>
+</div>
+<div id="invalid" class="alert-danger" style="@(!IsValid ? "display:block" : "display:none")">
+    <h2>INVALID</h2>
+</div>
+
+
+@code {
+    private PuzzlePortal.Shared.ValidationModel validationModel = new PuzzlePortal.Shared.ValidationModel();
+    private bool IsValid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = new Uri(NavigationManager.Uri).Query;
+        if (QueryHelpers.ParseQuery(query).TryGetValue("code", out var value))
+        {
+            validationModel.Code = value;
+            await HandleValidSubmit();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var content = new StringContent(validationModel.Code.Trim(), System.Text.Encoding.UTF8, "application/json");
+        var response = await Http.PostAsync("api/ScoreSheet", content);
+
+        IsValid = response.IsSuccessStatusCode;
+    }
+}
