@@ -7,7 +7,7 @@ namespace PuzzlePortal.Server.Domain
     public interface IQuizMaster
     {
         ScoreSheet RegisterNewContestant(string name);
-        ScoreSheet CompletePuzzle(ScoreSheet scoreSheet, Guid puzzleId);
+        ScoreSheet CompletePuzzle(ScoreSheet scoreSheet);
         bool IsAuthentic(ScoreSheet scoreSheet);
 
     }
@@ -24,15 +24,15 @@ namespace PuzzlePortal.Server.Domain
             return Sign(scoreSheet);
         }
 
-        public ScoreSheet CompletePuzzle(ScoreSheet scoreSheet, Guid puzzleId)
+        public ScoreSheet CompletePuzzle(ScoreSheet scoreSheet)
         {
             if (!IsAuthentic(scoreSheet))
                 throw new InvalidOperationException("Score sheet is not authentic");
 
-            if (scoreSheet.CurrentPuzzle != puzzleId)
-                throw new InvalidOperationException("Can only complete the current puzzle");
+            if (scoreSheet.CompletedPuzzles.Contains(scoreSheet.CurrentPuzzle))
+                return scoreSheet;
 
-            scoreSheet = scoreSheet.Complete(puzzleId);
+            scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle);
             var remainingPuzzles = Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).ToArray();
             if (remainingPuzzles.Any())
                 scoreSheet = scoreSheet.ChangeToPuzzle(PickOneAtRandom(remainingPuzzles));

@@ -1,0 +1,36 @@
+﻿@page "/cheats"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@inject HttpClient Http
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
+
+<div>
+    <h1>Cheats</h1>
+    <button class="btn btn-primary" @onclick="CompleteAllPuzzles">Complete all puzzles</button>
+</div>
+
+
+@code {
+
+    private async Task CompleteAllPuzzles()
+    {
+        var scoreSheet = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (scoreSheet == null)
+        {
+            Console.WriteLine("No active scoresheet!");
+        }
+        else
+        {
+            Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
+            var response = await Http.PostAsync("api/Cheats/CompleteAllPuzzles", content);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            scoreSheet = System.Text.Json.JsonSerializer.Deserialize<PuzzlePortal.Shared.ScoreSheetModel>(responseContent, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            Storage.SetItem("scoreSheet", scoreSheet);
+            NavigationManager.NavigateTo("progress");
+        }
+    }
+}

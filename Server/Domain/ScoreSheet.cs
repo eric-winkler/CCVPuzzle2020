@@ -43,7 +43,7 @@ namespace PuzzlePortal.Server.Domain
 				throw new InvalidOperationException("Can only complete the current puzzle");
 
 			var newScoreSheet = new ScoreSheet(this);
-			newScoreSheet.CompletedPuzzles = newScoreSheet.CompletedPuzzles.Concat(new[] { puzzleId }).ToArray();
+			newScoreSheet.CompletedPuzzles = newScoreSheet.CompletedPuzzles.Concat(new[] { puzzleId }).Distinct().ToArray();
 			return newScoreSheet;
 		}
 

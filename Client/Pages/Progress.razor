@@ -38,6 +38,12 @@
         <p>
             Congrats, you're done!
         </p>
+        <p>
+            Here's your proof;
+        </p>
+        <div class="container">
+            <samp>@System.Text.Json.JsonSerializer.Serialize(scoreSheet)</samp>
+        </div>
     </div>
     <div id="unfinished" style="@(!IsFinished ? "display:block" : "display:none")">
         <p>
@@ -52,11 +58,11 @@
     private Guid[] CompletedPuzzles;
     private bool IsFinished;
 
-    private PuzzlePortal.Shared.ScoreSheetModel scoreSheetModel = new PuzzlePortal.Shared.ScoreSheetModel();
+    private PuzzlePortal.Shared.ScoreSheetModel scoreSheet;
 
     protected override async Task OnInitializedAsync()
     {
-        var scoreSheet = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        scoreSheet = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
         if (scoreSheet == null)
         {
             Console.WriteLine("No active scoresheet!");
@@ -68,8 +74,6 @@
             var response = await Http.PostAsync("api/ScoreSheet", content);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
-            Console.WriteLine("Completed: " + scoreSheet.CompletedPuzzles);
 
             TeamName = scoreSheet.Name;
             CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
