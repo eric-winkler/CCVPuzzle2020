@@ -183,3 +183,38 @@ app {
         display: block;
     }
 }
+
+
+.pricesticker {
+    background-color: white;
+    border-style: solid;
+    border-color: black;
+    max-width: 300px;
+
+}
+
+    .pricesticker .image {
+        margin: 20px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        fill: #921934;
+    }
+    .pricesticker .price {
+        text-align: center;
+        font-size: 4em;
+        font-weight: bold;
+    }
+    .pricesticker .description {
+        font-size: 2m;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+    .pricesticker .barcode {
+        font-family: Dubai;
+        text-align: center;
+    }
+    .pricesticker .smalltext {
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
