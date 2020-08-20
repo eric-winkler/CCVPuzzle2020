@@ -26,7 +26,7 @@
 @code {
     private PuzzlePortal.Shared.RegistrationModel registrationModel = new PuzzlePortal.Shared.RegistrationModel();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         var value = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
         if (value != null)
