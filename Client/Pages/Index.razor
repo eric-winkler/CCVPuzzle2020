@@ -1,8 +1,24 @@
 ﻿@page "/"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
 
 <h1>Are you a tenacious problem solver?</h1>
 
-[TODO: instructions on how to get started]
 
-if score sheet exists -> check progress
-if no score sheet -> register
+@code {
+    private PuzzlePortal.Shared.RegistrationModel registrationModel = new PuzzlePortal.Shared.RegistrationModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var value = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (value == null)
+        {
+            NavigationManager.NavigateTo("registration");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("progress");
+        }
+    }
+}
