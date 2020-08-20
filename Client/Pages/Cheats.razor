@@ -25,12 +25,17 @@
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync("api/Cheats/CompleteAllPuzzles", content);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                Storage.RemoveItem("scoreSheet");
                 NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            scoreSheet = System.Text.Json.JsonSerializer.Deserialize<PuzzlePortal.Shared.ScoreSheetModel>(responseContent, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            Storage.SetItem("scoreSheet", scoreSheet);
-            NavigationManager.NavigateTo("progress");
+            }
+            else
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                scoreSheet = System.Text.Json.JsonSerializer.Deserialize<PuzzlePortal.Shared.ScoreSheetModel>(responseContent, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                Storage.SetItem("scoreSheet", scoreSheet);
+                NavigationManager.NavigateTo("progress");
+            }
         }
     }
 }

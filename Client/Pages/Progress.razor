@@ -73,12 +73,16 @@
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
             var response = await Http.PostAsync("api/ScoreSheet", content);
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
                 NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
-            TeamName = scoreSheet.Name;
-            CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
-            CompletedPuzzles = scoreSheet.CompletedPuzzles;
-            IsFinished = !PuzzlePortal.Shared.Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).Any();
+            }
+            else
+            {
+                TeamName = scoreSheet.Name;
+                CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
+                CompletedPuzzles = scoreSheet.CompletedPuzzles;
+                IsFinished = !PuzzlePortal.Shared.Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).Any();
+            }
         }
     }
 }
