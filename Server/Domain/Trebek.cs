@@ -1,4 +1,5 @@
-﻿using PuzzlePortal.Shared;
+﻿using Microsoft.Extensions.Configuration;
+using PuzzlePortal.Shared;
 using System;
 using System.Linq;
 
@@ -14,8 +15,13 @@ namespace PuzzlePortal.Server.Domain
 
     public class Trebek : IQuizMaster
     {
-        public string SigningKey = "todo";
+        private readonly string _signingKey;
         private static readonly Random Random = new Random(); // can be predicted
+
+        public Trebek(IConfiguration configuration)
+        {
+            _signingKey = configuration["QuizSecretKey"];
+        }
 
         public ScoreSheet RegisterNewContestant(string name)
         {
@@ -42,13 +48,13 @@ namespace PuzzlePortal.Server.Domain
 
         public bool IsAuthentic(ScoreSheet scoreSheet)
         {
-            var expectedSignature = scoreSheet.ComputeSignature(SigningKey);
+            var expectedSignature = scoreSheet.ComputeSignature(_signingKey);
             return scoreSheet.Signature == expectedSignature;
         }
 
         private ScoreSheet Sign(ScoreSheet scoreSheet)
         {
-            var signature = scoreSheet.ComputeSignature(SigningKey);
+            var signature = scoreSheet.ComputeSignature(_signingKey);
             return scoreSheet.Sign(signature);
         }
 

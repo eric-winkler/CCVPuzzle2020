@@ -7,6 +7,7 @@ namespace PuzzlePortal.Server.Controllers
 {
     [Route("api/[controller]/{action}")]
     [ApiController]
+    [AuthorizeCheats]
     public class CheatsController : ControllerBase
     {
         private readonly IQuizMaster _quizMaster;
