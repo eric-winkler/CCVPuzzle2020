@@ -1,4 +1,7 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@inject LocalStorage Storage
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">PuzzlePortal</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -8,10 +11,10 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         @*<li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>*@
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </li>*@
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="registration" Match="NavLinkMatch.All">
                 <span class="oi oi-star" aria-hidden="true"></span> Get Started
@@ -22,16 +25,21 @@
                 <span class="oi oi-bar-chart" aria-hidden="true"></span> Check Progress
             </NavLink>
         </li>
+        @if (!string.IsNullOrWhiteSpace(currentPuzzle))
+        {
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="seafood" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="@currentPuzzle" Match="NavLinkMatch.All">
                 <span class="oi oi-puzzle-piece" aria-hidden="true"></span> Current Puzzle
             </NavLink>
         </li>
+        }
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private string currentPuzzle;
+
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -40,5 +48,16 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    // TODO: load 'next puzzle' for navbar link
+    protected override void OnInitialized()
+    {
+        var scoreSheet = Storage.GetItem<PuzzlePortal.Shared.ScoreSheetModel>("scoreSheet");
+        if (scoreSheet == null)
+        {
+            currentPuzzle = null;
+        }
+        else
+        {
+            currentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
+        }
+    }
 }

@@ -4,14 +4,20 @@
 @inject LocalStorage Storage
 @inject NavigationManager NavigationManager
 
-<div id="unregistered" style="@(string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
+
+@if (string.IsNullOrWhiteSpace(TeamName))
+{
+<div id="unregistered">
     <h1>Progress Check</h1>
     <p>
         It looks like you haven't even started yet! Are you ready? <a href="registration">let's go!</a>
     </p>
 </div>
+}
 
-<div id="registered" style="@(!string.IsNullOrWhiteSpace(TeamName) ? "display:block" : "display:none")">
+@if(!string.IsNullOrWhiteSpace(TeamName))
+{
+<div id="registered">
     <h1>Welcome @TeamName</h1>
     <p>
         Here's what you've accomplished so far:
@@ -23,7 +29,7 @@
                 <ul>
                     @foreach (var p in CompletedPuzzles)
                     {
-                    <li>@PuzzlePortal.Shared.Puzzle.ById[p].Name</li>
+                        <li>@PuzzlePortal.Shared.Puzzle.ById[p].Name</li>
                     }
                 </ul>
             }
@@ -33,24 +39,32 @@
             }
         }
     </p>
+</div>
+}
 
-    <div id="finished" style="@(IsFinished ? "display:block" : "display:none")">
-        <p>
-            Congrats, you're done!
-        </p>
-        <p>
-            Here's your <a href="Validation?code=@System.Web.HttpUtility.UrlEncode(System.Text.Json.JsonSerializer.Serialize(scoreSheet))">proof</a>
-        </p>
-        <div class="container">
-            <samp>@System.Text.Json.JsonSerializer.Serialize(scoreSheet)</samp>
-        </div>
-    </div>
-    <div id="unfinished" style="@(!IsFinished ? "display:block" : "display:none")">
-        <p>
-            You should try to <a href="@CurrentPuzzle">solve a puzzle</a>.
-        </p>
+@if (IsFinished)
+{
+<div id="finished">
+    <p>
+        Congrats, you're done!
+    </p>
+    <p>
+        Here's your <a href="Validation?code=@System.Web.HttpUtility.UrlEncode(System.Text.Json.JsonSerializer.Serialize(scoreSheet))">proof</a>
+    </p>
+    <div class="container">
+        <samp>@System.Text.Json.JsonSerializer.Serialize(scoreSheet)</samp>
     </div>
 </div>
+}
+else
+{
+<div id="unfinished">
+    <p>
+        You should try to <a href="@CurrentPuzzle">solve a puzzle</a>.
+    </p>
+</div>
+}
+
 
 @code {
     private string TeamName;
