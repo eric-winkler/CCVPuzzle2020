@@ -16,7 +16,7 @@ namespace PuzzlePortal.Server.Domain
     public class Trebek : IQuizMaster
     {
         private readonly string _signingKey;
-        private static readonly Random Random = new Random(); // can be predicted
+        private readonly Random _random = new Random(); // can be predicted
 
         public Trebek(IConfiguration configuration)
         {
@@ -60,7 +60,7 @@ namespace PuzzlePortal.Server.Domain
 
         private T PickOneAtRandom<T>(T[] set)
         {
-            return set[Random.Next(0, set.Length)];
+            return set[_random.Next(0, set.Length)];
         }
     }
 }
