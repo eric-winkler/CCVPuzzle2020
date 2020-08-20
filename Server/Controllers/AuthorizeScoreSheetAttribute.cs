@@ -16,7 +16,9 @@ namespace PuzzlePortal.Server.Controllers
         {
             var quizMaster = context.HttpContext.RequestServices.GetService<IQuizMaster>();
 
-            var scoreSheet = context.ActionArguments["scoreSheet"] as ScoreSheetModel;
+            var scoreSheet = context.ActionArguments.ContainsKey("scoreSheet") 
+                ? context.ActionArguments["scoreSheet"] as ScoreSheetModel
+                : null;
             var isVirginScoreSheet = scoreSheet != null
                 && string.IsNullOrEmpty(scoreSheet.Signature)
                 && scoreSheet.CompletedPuzzles?.Any() != true
