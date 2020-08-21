@@ -16,6 +16,8 @@ namespace PuzzlePortal.Server.Controllers
         {
             var quizMaster = context.HttpContext.RequestServices.GetService<IQuizMaster>();
 
+            var scoreSheetHeader = context.HttpContext.Request.Headers["ScoreSheet"];
+
             var scoreSheet = context.ActionArguments.ContainsKey("scoreSheet") 
                 ? context.ActionArguments["scoreSheet"] as ScoreSheetModel
                 : null;

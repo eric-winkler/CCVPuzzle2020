@@ -22,7 +22,7 @@ namespace PuzzlePortal.Server.Controllers
         {
             if (scoreSheet.CompletedPuzzles?.Any() == true)
             {
-                return scoreSheet;
+                return null;
             }
             else
             {
