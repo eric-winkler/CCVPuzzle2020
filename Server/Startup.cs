@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 using PuzzlePortal.Server.Domain;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PuzzlePortal.Server
 {
@@ -25,7 +26,7 @@ namespace PuzzlePortal.Server
         {
             services.AddSingleton<IQuizMaster, Trebek>();
             //services.Add(new ServiceDescriptor(typeof(IQuizMaster), new Trebek()));
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(c => c.Filters.Add(new ResponseCacheAttribute { NoStore = true, Location = ResponseCacheLocation.None }));
             services.AddRazorPages();
         }
 
