@@ -102,11 +102,10 @@
         if (response.EnsureAuthorized(NavigationManager))
         {
             model = await response.ReadJsonResponse<PuzzlePortal.Shared.SimeonWheelockModel>();
+            _price = Price();
+            _barcode = Barcode();
+            _smallText = SmallText();
         }
-
-        _price = Price();
-        _barcode = Barcode();
-        _smallText = SmallText();
     }
 
     private string SmallText()

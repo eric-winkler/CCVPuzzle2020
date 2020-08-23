@@ -1,6 +1,10 @@
-﻿@page "/seafood"
-@inject HttpClient Http
+﻿@page "/Seafood"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
 @using System.ComponentModel.DataAnnotations
+@using PuzzleClient;
+@inject HttpClient Http
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
 
 <p>What is the name of the tool the Mercury dev team uses to check on the health of the production services?</p>
 
@@ -10,49 +14,88 @@
 }
 else
 {
-<EditForm Model="@answerModel" OnValidSubmit="HandleValidSubmit">
-
-    @foreach (var animal in sealife)
-    {
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
         <div>
             <label>
-                @*<input type="radio" name="animalChoice" value="@animal" @bind-Value="answerModel.Answer" /> @animal*@
-                @*<InputRadio name="rate" SelectedValue="@animal" @bind-Value="answerModel.Answer" />  @animal*@
+                <InputSelect @bind-Value="model.Answer">
+                    @foreach (var animal in sealife)
+                        {
+                        <option value="@animal">@animal</option>
+                        }
+                    <option value="None">None of the above</option>
+                </InputSelect>
             </label>
         </div>
-    }
-    <div>
-        <label>
-            <input type="radio" name="animalChoice" value="None" bind="answerModel.Answer" /> None of the above
-        </label>
-    </div>
+        <button type="submit">Submit</button>
+    </EditForm>
+}
 
-    <button type="submit">Submit</button>
-</EditForm>
+@if (_isIncorrectAnswer)
+{
+    <div class="alert-danger">
+        <h2>Try again!</h2>
+    </div>
 }
 
 
-
 @code {
-    private PuzzlePortal.Shared.TextAnswerModel answerModel = new PuzzlePortal.Shared.TextAnswerModel();
+    private PuzzlePortal.Shared.TextAnswerModel model = new PuzzlePortal.Shared.TextAnswerModel();
+    private bool _isIncorrectAnswer;
     private string[] sealife;
 
     protected override async Task OnInitializedAsync()
     {
-        sealife = await Http.GetFromJsonAsync<string[]>("Sealife");
+        await LoadAnswerPossibilities();
     }
 
     private async Task HandleValidSubmit()
     {
-        Console.WriteLine($"Selected option: {answerModel.Answer}");
-
-        if (answerModel.Answer == "None")
+        _isIncorrectAnswer = false;
+        if (model.Answer == "None")
         {
-            sealife = await Http.GetFromJsonAsync<string[]>("Sealife");
+            await LoadAnswerPossibilities();
+            return;
+        }
+
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri("api/Seafood/Answer", UriKind.Relative),
+            Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json")
+        };
+        message.AddAuth(Storage);
+
+        var response = await Http.SendAsync(message);
+        if (!response.EnsureAuthorized(NavigationManager))
+            return;
+
+        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            await response.SaveAuth(Storage);
+            NavigationManager.NavigateTo("progress");
         }
         else
         {
-            // TODO: check answer
+            _isIncorrectAnswer = true;
+            Console.WriteLine("WRONG!");
+            await LoadAnswerPossibilities();
+        }
+    }
+
+    private async Task LoadAnswerPossibilities()
+    {
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri("api/Seafood/Question", UriKind.Relative)
+        };
+        message.AddAuth(Storage);
+
+        var response = await Http.SendAsync(message);
+        if (response.EnsureAuthorized(NavigationManager))
+        {
+            model = new PuzzlePortal.Shared.TextAnswerModel();
+            sealife = await response.ReadJsonResponse<string[]>();
         }
     }
 }
