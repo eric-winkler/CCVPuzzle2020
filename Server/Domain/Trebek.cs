@@ -41,7 +41,13 @@ namespace PuzzlePortal.Server.Domain
             scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle);
             var remainingPuzzles = Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).ToArray();
             if (remainingPuzzles.Any())
+            {
                 scoreSheet = scoreSheet.ChangeToPuzzle(PickOneAtRandom(remainingPuzzles));
+            }
+            else
+            {
+                scoreSheet = scoreSheet.Finish();
+            }
 
             return Sign(scoreSheet);
         }

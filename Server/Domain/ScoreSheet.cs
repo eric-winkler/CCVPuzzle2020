@@ -8,6 +8,7 @@ namespace PuzzlePortal.Server.Domain
 	{
 		public string Name { get; private set; }
 		public DateTimeOffset StartingTimestamp { get; private set; }
+		public DateTimeOffset? FinishedTimestamp { get; private set; }
 		public Guid[] CompletedPuzzles { get; set; }
 		public Guid CurrentPuzzle { get; set; }
 		public string Signature { get; private set; }
@@ -21,18 +22,20 @@ namespace PuzzlePortal.Server.Domain
 		}
 
 		public ScoreSheet(ScoreSheetModel model)
-        {
+		{
 			Name = model.Name;
 			StartingTimestamp = model.StartingTimestamp;
+			FinishedTimestamp = model.FinishedTimestamp;
 			CompletedPuzzles = model.CompletedPuzzles;
 			CurrentPuzzle = model.CurrentPuzzle;
 			Signature = model.Signature;
-        }
+		}
 
 		public ScoreSheet(ScoreSheet otherScoreSheet)
 		{
 			Name = otherScoreSheet.Name;
 			StartingTimestamp = otherScoreSheet.StartingTimestamp;
+			FinishedTimestamp = otherScoreSheet.FinishedTimestamp;
 			CompletedPuzzles = otherScoreSheet.CompletedPuzzles;
 			CurrentPuzzle = otherScoreSheet.CurrentPuzzle;
 		}
@@ -44,6 +47,13 @@ namespace PuzzlePortal.Server.Domain
 
 			var newScoreSheet = new ScoreSheet(this);
 			newScoreSheet.CompletedPuzzles = newScoreSheet.CompletedPuzzles.Concat(new[] { puzzleId }).Distinct().ToArray();
+			return newScoreSheet;
+		}
+
+		internal ScoreSheet Finish()
+        {
+			var newScoreSheet = new ScoreSheet(this);
+			newScoreSheet.FinishedTimestamp = DateTimeOffset.Now;
 			return newScoreSheet;
 		}
 
@@ -72,7 +82,8 @@ namespace PuzzlePortal.Server.Domain
 				CompletedPuzzles = CompletedPuzzles,
 				CurrentPuzzle = CurrentPuzzle,
 				Signature = Signature,
-				StartingTimestamp = StartingTimestamp
+				StartingTimestamp = StartingTimestamp,
+				FinishedTimestamp = FinishedTimestamp
 			};
 		}
 	}
