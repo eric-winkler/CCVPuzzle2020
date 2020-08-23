@@ -80,23 +80,28 @@ else
         if (scoreSheet == null)
         {
             Console.WriteLine("No active scoresheet!");
+            return;
+        }
+
+        Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri("api/ScoreSheet", UriKind.Relative)
+        };
+        message.Headers.Add("ScoreSheet", System.Text.Json.JsonSerializer.Serialize(scoreSheet));
+
+        var response = await Http.SendAsync(message);
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
         }
         else
         {
-            Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
-            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
-            var response = await Http.PostAsync("api/ScoreSheet", content);
-            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-            }
-            else
-            {
-                TeamName = scoreSheet.Name;
-                CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
-                CompletedPuzzles = scoreSheet.CompletedPuzzles;
-                IsFinished = !PuzzlePortal.Shared.Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).Any();
-            }
+            TeamName = scoreSheet.Name;
+            CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;
+            CompletedPuzzles = scoreSheet.CompletedPuzzles;
+            IsFinished = !PuzzlePortal.Shared.Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).Any();
         }
     }
 }

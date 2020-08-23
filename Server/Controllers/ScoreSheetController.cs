@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.Mvc;
 using PuzzlePortal.Server.Domain;
 using PuzzlePortal.Shared;
@@ -17,23 +18,16 @@ namespace PuzzlePortal.Server.Controllers
         }
 
         [HttpPost]
-        [AuthorizeScoreSheet]
         public ScoreSheetModel Post(ScoreSheetModel scoreSheet)
-        {
-            if (scoreSheet.CompletedPuzzles?.Any() == true)
-            {
-                return null;
-            }
-            else
-            {
-                return CreateNewScoreSheet(scoreSheet);
-            }
-        }
-
-        private ScoreSheetModel CreateNewScoreSheet(ScoreSheetModel scoreSheet)
         {
             var newScoreSheet = _quizMaster.RegisterNewContestant(scoreSheet.Name);
             return newScoreSheet.ToModel();
+        }
+
+        [HttpGet]
+        [AuthorizeScoreSheet]
+        public void Get()
+        {
         }
     }
 }

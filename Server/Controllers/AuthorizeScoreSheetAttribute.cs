@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -15,25 +14,31 @@ namespace PuzzlePortal.Server.Controllers
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var quizMaster = context.HttpContext.RequestServices.GetService<IQuizMaster>();
-
-            var scoreSheetHeader = context.HttpContext.Request.Headers["ScoreSheet"];
-
-            var scoreSheet = context.ActionArguments.ContainsKey("scoreSheet") 
-                ? context.ActionArguments["scoreSheet"] as ScoreSheetModel
-                : null;
-            var isVirginScoreSheet = scoreSheet != null
-                && string.IsNullOrEmpty(scoreSheet.Signature)
-                && scoreSheet.CompletedPuzzles?.Any() != true
-                && scoreSheet.CurrentPuzzle == default
-                && scoreSheet.StartingTimestamp == default;
-
-            if (!isVirginScoreSheet && !quizMaster.IsAuthentic(new ScoreSheet(scoreSheet)))
+            var scoreSheet = ExtractScoreSheet(context);
+            if (scoreSheet == null || !quizMaster.IsAuthentic(new ScoreSheet(scoreSheet)))
             {
                 context.Result = new UnauthorizedResult();
                 return;
             }
 
+            context.ActionArguments["scoreSheet"] = scoreSheet;
             await next();
+        }
+
+        private static ScoreSheetModel ExtractScoreSheet(ActionExecutingContext context)
+        {
+            if (!context.HttpContext.Request.Headers.ContainsKey("ScoreSheet"))
+                return null;
+
+            try
+            {
+                var scoreSheetHeader = context.HttpContext.Request.Headers["ScoreSheet"];
+                return System.Text.Json.JsonSerializer.Deserialize<ScoreSheetModel>(scoreSheetHeader);
+            }
+            catch(System.Text.Json.JsonException)
+            {
+                return null;
+            }
         }
     }
 }
