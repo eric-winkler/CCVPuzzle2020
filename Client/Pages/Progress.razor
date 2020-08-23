@@ -1,5 +1,6 @@
 ﻿@page "/progress"
 @using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@using PuzzleClient;
 @inject HttpClient Http
 @inject LocalStorage Storage
 @inject NavigationManager NavigationManager
@@ -83,20 +84,15 @@ else
             return;
         }
 
-        Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
         var message = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
             RequestUri = new Uri("api/ScoreSheet", UriKind.Relative)
         };
-        message.Headers.Add("ScoreSheet", System.Text.Json.JsonSerializer.Serialize(scoreSheet));
+        message.AddAuth(Storage);
 
         var response = await Http.SendAsync(message);
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            NavigationManager.NavigateTo("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-        }
-        else
+        if(response.EnsureAuthorized(NavigationManager))
         {
             TeamName = scoreSheet.Name;
             CurrentPuzzle = PuzzlePortal.Shared.Puzzle.ById[scoreSheet.CurrentPuzzle].Name;

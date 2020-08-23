@@ -15,13 +15,18 @@
     <button class="btn-primary" type="submit">Check Result</button>
 </EditForm>
 
-
-<div id="valid" class="alert-success" style="@(IsValid ? "display:block" : "display:none")">
+@if (IsValid)
+{
+<div id="valid" class="alert-success">
     <h2>VALID</h2>
 </div>
-<div id="invalid" class="alert-danger" style="@(!IsValid ? "display:block" : "display:none")">
+}
+else
+{
+<div id="invalid" class="alert-danger">
     <h2>INVALID</h2>
 </div>
+}
 
 
 @code {

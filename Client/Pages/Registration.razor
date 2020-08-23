@@ -1,5 +1,6 @@
 ﻿@page "/registration"
 @using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@using PuzzleClient;
 @inject HttpClient Http
 @inject LocalStorage Storage
 @inject NavigationManager NavigationManager
@@ -40,9 +41,7 @@
         var scoreSheet = new PuzzlePortal.Shared.ScoreSheetModel() { Name = registrationModel.TeamName };
         var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(scoreSheet), System.Text.Encoding.UTF8, "application/json");
         var response = await Http.PostAsync("api/ScoreSheet", content);
-        var responseContent = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("RECV:" + responseContent);
-        scoreSheet = System.Text.Json.JsonSerializer.Deserialize<PuzzlePortal.Shared.ScoreSheetModel>(responseContent, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        scoreSheet = await response.ReadJsonResponse<PuzzlePortal.Shared.ScoreSheetModel>();
 
         Console.WriteLine("scoreSheet.Name: " + scoreSheet.Name);
         Console.WriteLine("scoreSheet.Signature: " + scoreSheet.Signature);

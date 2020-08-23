@@ -7,8 +7,9 @@ using PuzzlePortal.Shared;
 namespace PuzzlePortal.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]/{action}")]
-    public class SimeonWheelockController : ControllerBase
+    [Route("api/[controller]/{action}")]
+    [AuthorizeScoreSheet(currentPuzzle: Puzzle.GuidStrings.SimeonWheelock)]
+    public class SimeonWheelockController : QuestionControllerBase
     {
         private readonly IQuizMaster _quizMaster;
 
@@ -24,22 +25,19 @@ namespace PuzzlePortal.Server.Controllers
         }
 
         [HttpPost]
-        [AuthorizeScoreSheet]
-        public ScoreSheetModel Answer(SimeonWheelockModel model)
+        public ActionResult<ScoreSheetModel> Answer(SimeonWheelockModel model)
         {
-            // TODO:
-            //if(EncodePrice(model.Answer) == model.PriceCode)
+            if(EncodePrice(model.Answer) != model.PriceCode)
+            {
+                return BadRequest();
+            }
 
-            throw new NotImplementedException();
-            
+            return _quizMaster.CompletePuzzle(ScoreSheet).ToModel();
         }
 
         [HttpGet]
-        [AuthorizeScoreSheet]
         public SimeonWheelockModel Question()
         {
-            // TODO: is this the current puzzle?
-
             return new SimeonWheelockModel
             {
                 PriceCode = EncodePrice(_random.Next(MinPrice * 100, MaxPrice * 100) / 100m)
