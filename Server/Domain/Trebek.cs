@@ -35,10 +35,9 @@ namespace PuzzlePortal.Server.Domain
             if (!IsAuthentic(scoreSheet))
                 throw new InvalidOperationException("Score sheet is not authentic");
 
-            if (scoreSheet.CompletedPuzzles.Contains(scoreSheet.CurrentPuzzle))
-                return scoreSheet;
+            if (!scoreSheet.CompletedPuzzles.Contains(scoreSheet.CurrentPuzzle))
+                scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle);
 
-            scoreSheet = scoreSheet.Complete(scoreSheet.CurrentPuzzle);
             var remainingPuzzles = Puzzle.Ids.Except(scoreSheet.CompletedPuzzles).ToArray();
             if (remainingPuzzles.Any())
             {

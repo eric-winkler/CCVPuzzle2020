@@ -1,0 +1,96 @@
+﻿@page "/Skewers"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@using System.ComponentModel.DataAnnotations
+@using PuzzleClient;
+@inject HttpClient Http
+@inject LocalStorage Storage
+@inject NavigationManager NavigationManager
+
+<p>Which of the following are real product SKUs in CCPOS?</p>
+
+@if (_skus == null)
+{
+    <p><em>Loading options...</em></p>
+}
+else
+{
+    <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+        <div>
+            @foreach (var sku in _skus)
+            {
+            <p>
+                <input id="@sku" type="checkbox" @bind="model.Answer[sku]" />
+                <label for="@sku">@sku</label>
+                @*<InputCheckbox @bind-Value="model.Answer[sku]" />*@
+            </p>
+            }
+        </div>
+        <button type="submit">Submit</button>
+    </EditForm>
+}
+
+@if (_isIncorrectAnswer)
+{
+    <div class="alert-danger">
+        <h2>Try again!</h2>
+    </div>
+}
+
+
+@code {
+    private PuzzlePortal.Shared.TrueFalseListAnswerModel model;
+    private bool _isIncorrectAnswer;
+    private string[] _skus;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnswerPossibilities();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        _isIncorrectAnswer = false;
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri("api/Skewers/Answer", UriKind.Relative),
+            Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json")
+        };
+        message.AddAuth(Storage);
+
+        var response = await Http.SendAsync(message);
+        if (!response.EnsureAuthorized(NavigationManager))
+            return;
+
+        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            await response.SaveAuth(Storage);
+            NavigationManager.NavigateTo("progress");
+        }
+        else
+        {
+            _isIncorrectAnswer = true;
+            Console.WriteLine("WRONG!");
+            await LoadAnswerPossibilities();
+        }
+    }
+
+    private async Task LoadAnswerPossibilities()
+    {
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri("api/Skewers/Question", UriKind.Relative)
+        };
+        message.AddAuth(Storage);
+
+        var response = await Http.SendAsync(message);
+        if (response.EnsureAuthorized(NavigationManager))
+        {
+            model = new PuzzlePortal.Shared.TrueFalseListAnswerModel();
+            var skus = await response.ReadJsonResponse<string[]>();
+            model.Answer = skus.ToDictionary(s => s, s => false);
+            _skus = skus;
+        }
+    }
+}
