@@ -1,6 +1,9 @@
 ﻿@page "/validation"
 @using Microsoft.AspNetCore.WebUtilities
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@using PuzzleClient;
 @inject HttpClient Http
+@inject LocalStorage Storage
 @inject NavigationManager NavigationManager
 
 <h1>Completion Validation</h1>
@@ -17,15 +20,15 @@
 
 @if (IsValid)
 {
-<div id="valid" class="alert-success">
-    <h2>VALID</h2>
-</div>
+    <div id="valid" class="alert-success">
+        <h2>VALID</h2>
+    </div>
 }
 else
 {
-<div id="invalid" class="alert-danger">
-    <h2>INVALID</h2>
-</div>
+    <div id="invalid" class="alert-danger">
+        <h2>INVALID</h2>
+    </div>
 }
 
 
@@ -45,9 +48,14 @@ else
 
     private async Task HandleValidSubmit()
     {
-        var content = new StringContent(validationModel.Code.Trim(), System.Text.Encoding.UTF8, "application/json");
-        var response = await Http.PostAsync("api/ScoreSheet", content);
+        var message = new HttpRequestMessage
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri("api/ScoreSheet", UriKind.Relative),
+        };
+        message.Headers.Add("ScoreSheet", validationModel.Code);
 
+        var response = await Http.SendAsync(message);
         IsValid = response.IsSuccessStatusCode;
     }
 }

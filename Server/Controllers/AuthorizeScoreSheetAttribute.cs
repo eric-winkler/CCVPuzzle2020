@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using PuzzlePortal.Server.Domain;
 using PuzzlePortal.Shared;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace PuzzlePortal.Server.Controllers
 {
@@ -50,9 +51,9 @@ namespace PuzzlePortal.Server.Controllers
             try
             {
                 var scoreSheetHeader = context.HttpContext.Request.Headers["ScoreSheet"];
-                return System.Text.Json.JsonSerializer.Deserialize<ScoreSheetModel>(scoreSheetHeader);
+                return JsonSerializer.Deserialize<ScoreSheetModel>(scoreSheetHeader);
             }
-            catch(System.Text.Json.JsonException)
+            catch(JsonException)
             {
                 return null;
             }

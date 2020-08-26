@@ -20,7 +20,7 @@ namespace PuzzlePortal.Client.PuzzleClient
             }
 
             Console.WriteLine($"Loaded scoresheet for {scoreSheet.Name}");
-            message.Headers.Add("ScoreSheet", System.Text.Json.JsonSerializer.Serialize(scoreSheet));
+            message.Headers.Add("ScoreSheet", JsonSerializer.Serialize(scoreSheet));
         }
 
         public static async Task SaveAuth(this HttpResponseMessage message, LocalStorage storage)
