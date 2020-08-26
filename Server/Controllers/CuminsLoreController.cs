@@ -9,14 +9,28 @@ namespace PuzzlePortal.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]/{action}")]
-    [AuthorizeScoreSheet(currentPuzzle: Puzzle.GuidStrings.Skewers)]
-    public class SkewersController : QuestionControllerBase
+    [AuthorizeScoreSheet(currentPuzzle: Puzzle.GuidStrings.CuminsLore)]
+    public class CuminsLoreController : QuestionControllerBase
     {
-        private static readonly string[] RealSkus = new[] { "Dragon", "Golden Cane", "Rattle", "Handcuffs", "Batteries", "Astroturf", "Cut Padlock", "Broom Head", "Kitchen Sink" };
-        private static readonly string[] FakeSkus = new[] { "USB Cable", "Lightsabre", "Armour", "Saucepan", "Time Machine" };
+        private static readonly string[] RealStories = new[]
+        {
+            "We have a taxidermied three headed duckling for sale at a store",
+            "Someone posted a gimp cage for sale on WIWO",
+            "Someone once loaned on 50kgs of frozen prawns",
+            "Someone loaned their fish tank, with fish in it",
+            "Usher nearly bought a bass guitar from the Freo store",
+            "We had a 21ct diamond worth $800k for sale on Webshop"
+        };
+        private static readonly string[] FakeStories = new[]
+        {
+            "None of these are true",
+            "A store kept 50kgs of frozen prawns in a fish tank",
+            "Taxidermied animals and gimp cages are often bought together",
+            "Usher sold us a 21ct diamond worth $800k"
+        };
         private readonly IQuizMaster _quizMaster;
 
-        public SkewersController(IQuizMaster quizMaster)
+        public CuminsLoreController(IQuizMaster quizMaster)
         {
             _quizMaster = quizMaster;
         }
@@ -25,8 +39,8 @@ namespace PuzzlePortal.Server.Controllers
         public ActionResult<ScoreSheetModel> Answer(TrueFalseListAnswerModel model)
         {
             if(!model.Answer.Any()
-                || !model.Answer.Where(a => a.Value).Select(a => a.Key).All(m => RealSkus.Contains(m))
-                || !model.Answer.Where(a => !a.Value).Select(a => a.Key).All(m => FakeSkus.Contains(m)))
+                || !model.Answer.Where(a => a.Value).Select(a => a.Key).All(m => RealStories.Contains(m))
+                || !model.Answer.Where(a => !a.Value).Select(a => a.Key).All(m => FakeStories.Contains(m)))
             {
                 return BadRequest();
             }
@@ -37,7 +51,7 @@ namespace PuzzlePortal.Server.Controllers
         [HttpGet]
         public IEnumerable<string> Question()
         {
-            return RealSkus.Concat(FakeSkus)
+            return RealStories.Concat(FakeStories)
                 .OrderBy(i => Guid.NewGuid())
                 .Take(5)
                 .ToArray();

@@ -39,7 +39,7 @@ namespace PuzzlePortal.Server.Controllers
         {
             return RealSkus.Concat(FakeSkus)
                 .OrderBy(i => Guid.NewGuid())
-                .Take(5)
+                .Take(6)
                 .ToArray();
         }
     }

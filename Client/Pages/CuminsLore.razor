@@ -1,4 +1,4 @@
-﻿@page "/Skewers"
+﻿@page "/CuminsLore"
 @using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
 @using System.ComponentModel.DataAnnotations
 @using PuzzleClient;
@@ -6,9 +6,9 @@
 @inject LocalStorage Storage
 @inject NavigationManager NavigationManager
 
-<p>Which of the following are real product SKUs in CCPOS?</p>
+<p>Which of the following Cashies stories are true?</p>
 
-@if (_skus == null)
+@if (_stories == null)
 {
     <p><em>Loading options...</em></p>
 }
@@ -16,11 +16,11 @@ else
 {
     <EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
         <div>
-            @foreach (var sku in _skus)
+            @foreach (var story in _stories)
             {
             <p>
-                <input id="@sku" type="checkbox" @bind="model.Answer[sku]" />
-                <label for="@sku">@sku</label>
+                <input id="@story" type="checkbox" @bind="model.Answer[story]" />
+                <label for="@story">@story</label>
             </p>
             }
         </div>
@@ -39,7 +39,7 @@ else
 @code {
     private PuzzlePortal.Shared.TrueFalseListAnswerModel model;
     private bool _isIncorrectAnswer;
-    private string[] _skus;
+    private string[] _stories;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,7 +52,7 @@ else
         var message = new HttpRequestMessage
         {
             Method = HttpMethod.Post,
-            RequestUri = new Uri("api/Skewers/Answer", UriKind.Relative),
+            RequestUri = new Uri("api/CuminsLore/Answer", UriKind.Relative),
             Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json")
         };
         message.AddAuth(Storage);
@@ -79,7 +79,7 @@ else
         var message = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
-            RequestUri = new Uri("api/Skewers/Question", UriKind.Relative)
+            RequestUri = new Uri("api/CuminsLore/Question", UriKind.Relative)
         };
         message.AddAuth(Storage);
 
@@ -87,9 +87,9 @@ else
         if (response.EnsureAuthorized(NavigationManager))
         {
             model = new PuzzlePortal.Shared.TrueFalseListAnswerModel();
-            var skus = await response.ReadJsonResponse<string[]>();
-            model.Answer = skus.ToDictionary(s => s, s => false);
-            _skus = skus;
+            var stories = await response.ReadJsonResponse<string[]>();
+            model.Answer = stories.ToDictionary(s => s, s => false);
+            _stories = stories;
         }
     }
 }
